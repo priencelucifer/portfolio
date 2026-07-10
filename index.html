@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ricky Kashyap — Embedded Systems · DevOps · Homelab</title>
+<meta name="description" content="Portfolio of Ricky Kashyap — embedded systems and DevOps engineer from Guwahati, India. Firmware, IoT, and self-hosted infrastructure.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Space+Grotesk:wght@300;400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#060a12;
+  --panel:#0a111f;
+  --line:#1b2536;
+  --amber:#ffb000;
+  --cyan:#62d9e8;
+  --text:#c9d4e3;
+  --bright:#eef3fa;
+  --dim:#66748c;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --disp:'Chakra Petch',sans-serif;
+  --body:'Space Grotesk',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--void);
+  color:var(--text);
+  font-family:var(--body);
+  font-weight:300;
+  line-height:1.6;
+  overflow-x:hidden;
+  padding-bottom:2.2rem;
+}
+/* faint blueprint grid */
+body::before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    linear-gradient(color-mix(in srgb,var(--cyan) 3%,transparent) 1px,transparent 1px),
+    linear-gradient(90deg,color-mix(in srgb,var(--cyan) 3%,transparent) 1px,transparent 1px);
+  background-size:56px 56px;
+}
+/* cursor spotlight — position driven by --mx/--my, color follows theme */
+#spot{
+  position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:radial-gradient(600px at var(--mx,-999px) var(--my,-999px),
+    color-mix(in srgb,var(--amber) 5%,transparent),transparent 80%);
+}
+::selection{background:var(--amber);color:var(--void)}
+a{color:var(--cyan);text-decoration:none}
+a:hover{color:var(--amber)}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+
+/* ---------- boot overlay ---------- */
+#boot{
+  position:fixed;inset:0;z-index:100;background:var(--void);
+  font-family:var(--mono);font-size:clamp(11px,1.6vw,14px);color:var(--amber);
+  padding:12vh 8vw;cursor:pointer;
+}
+#boot .ln{display:block;white-space:pre-wrap;opacity:0}
+#boot .ln.on{opacity:1}
+#boot .ok{color:var(--cyan)}
+#boot .skip{position:absolute;bottom:5vh;left:8vw;color:var(--dim);font-size:11px}
+#boot.done{transition:opacity .45s ease;opacity:0;pointer-events:none}
+
+/* ---------- split layout ---------- */
+.wrap{
+  position:relative;z-index:2;
+  max-width:1240px;margin:0 auto;
+  padding:0 1.5rem;
+  display:grid;grid-template-columns:1fr;gap:0 4rem;
+}
+@media(min-width:840px){
+  .wrap{grid-template-columns:minmax(380px,5fr) 7fr;padding:0 3rem}
+  aside{
+    position:sticky;top:0;height:100svh;
+    display:flex;flex-direction:column;
+    padding:5.5rem 0 3rem;
+  }
+}
+aside{padding-top:4.5rem}
+
+.sys-tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--amber)}
+.led{
+  display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--amber);margin-right:.55em;vertical-align:1px;
+  box-shadow:0 0 6px var(--amber);
+  animation:pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse{50%{opacity:.5}}
+h1{
+  font-family:var(--disp);font-weight:700;
+  font-size:clamp(2.4rem,5vw,3.4rem);
+  line-height:1.02;letter-spacing:.02em;text-transform:uppercase;
+  color:var(--bright);margin:1.1rem 0 .4rem;
+}
+h1 .k{color:var(--amber)}
+.role{
+  font-family:var(--mono);font-size:13.5px;color:var(--text);
+  letter-spacing:.13em;margin:.5rem 0 .3rem;
+}
+.role b{color:var(--cyan);font-weight:400}
+.edu{
+  font-family:var(--mono);font-size:11px;color:var(--dim);
+  letter-spacing:.13em;margin:0 0 1.2rem;
+}
+.tagline{max-width:30em;color:var(--text);font-size:1rem}
+
+/* vertical memory-map nav */
+nav.map{display:none;margin:3rem 0 auto}
+@media(min-width:840px){nav.map{display:block}}
+nav.map a{
+  display:flex;align-items:center;gap:.9rem;
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+  color:var(--dim);padding:.45rem 0;
+}
+nav.map a .bar{width:1.8rem;height:1px;background:var(--line);transition:width .25s ease,background .25s ease}
+nav.map a b{font-weight:400;color:var(--dim);transition:color .25s}
+nav.map a span{transition:color .25s}
+nav.map a:hover span,nav.map a.on span{color:var(--bright)}
+nav.map a:hover b,nav.map a.on b{color:var(--cyan)}
+nav.map a:hover .bar,nav.map a.on .bar{width:3.6rem;background:var(--amber)}
+
+.aside-foot{margin-top:2.5rem}
+@media(min-width:840px){.aside-foot{margin-top:auto}}
+.socials{display:flex;gap:1.5rem;font-family:var(--mono);font-size:12px;letter-spacing:.1em;margin-bottom:1rem}
+.socials a{color:var(--dim)}
+.socials a:hover{color:var(--amber)}
+.clockline{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.08em}
+.clockline b{color:var(--cyan);font-weight:400}
+
+/* full color themes (Keita Yamada-style user theme switch) */
+html[data-phosphor="neon"]{
+  --void:#0a0614;--panel:#120a1e;--line:#2a1b3e;
+  --amber:#ff2e88;--cyan:#00e5ff;
+}
+html[data-phosphor="green"]{
+  --void:#050d08;--panel:#0a1510;--line:#16301f;
+  --amber:#41ff70;--cyan:#ffd23f;
+}
+html[data-phosphor="ice"]{
+  --void:#05090f;--panel:#0a1420;--line:#1a2a3e;
+  --amber:#7ad7ff;--cyan:#c4b5fd;
+}
+
+/* control buttons */
+.ctrl{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+.ctrl button{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  background:none;border:1px solid var(--line);color:var(--dim);
+  padding:.3rem .7rem;cursor:pointer;transition:color .2s,border-color .2s;
+}
+.ctrl button:hover{color:var(--amber);border-color:var(--amber)}
+
+/* glitch on name hover */
+@keyframes glitch{
+  0%,100%{text-shadow:none}
+  20%{text-shadow:-2px 0 var(--cyan),2px 0 #ff3860}
+  40%{text-shadow:2px 0 var(--cyan),-2px 0 #ff3860}
+  60%{text-shadow:none}
+}
+h1:hover .k{animation:glitch .35s steps(1) 2}
+
+/* stats strip */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:2rem}
+@media(min-width:640px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stats div{background:var(--panel);padding:.9rem 1rem}
+.stats .n{font-family:var(--disp);font-weight:700;font-size:clamp(1.1rem,2vw,1.5rem);color:var(--amber);display:block;line-height:1.3}
+.stats .l{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--dim)}
+
+/* drop-down system console */
+#term{
+  position:fixed;left:0;right:0;top:0;z-index:90;
+  background:rgba(6,10,18,.97);border-bottom:1px solid var(--amber);
+  font-family:var(--mono);font-size:12.5px;
+  transform:translateY(-101%);transition:transform .25s ease;
+  max-height:55vh;display:flex;flex-direction:column;
+}
+#term.open{transform:none}
+#term .out{padding:1rem 1.25rem .5rem;overflow-y:auto;flex:1;white-space:pre-wrap;color:var(--text)}
+#term .out .c{color:var(--amber)}
+#term .in{display:flex;gap:.5rem;padding:.5rem 1.25rem 1rem;align-items:center}
+#term .in label{color:var(--cyan);white-space:nowrap}
+#term input{flex:1;background:none;border:0;outline:0;color:var(--amber);font:inherit;caret-color:var(--amber)}
+
+/* ---------- fx layer: cursor, starfield, sweep, progress, ticker ---------- */
+#cur,#curdot{display:none}
+html.cur-on{cursor:none}
+html.cur-on a,html.cur-on button,html.cur-on input,html.cur-on label{cursor:none}
+html.cur-on #cur,html.cur-on #curdot{display:block}
+#cur{
+  position:fixed;left:-16px;top:-16px;width:32px;height:32px;z-index:999;pointer-events:none;
+  border:1px solid color-mix(in srgb,var(--amber) 45%,transparent);border-radius:50%;
+}
+#cur::after{
+  content:"";position:absolute;inset:5px;border-radius:50%;
+  border:1px dashed var(--amber);opacity:.55;animation:spin 10s linear infinite;
+}
+@keyframes spin{to{rotate:1turn}}
+#curdot{
+  position:fixed;left:-3px;top:-3px;width:6px;height:6px;background:var(--amber);
+  z-index:999;pointer-events:none;box-shadow:0 0 8px var(--amber);
+}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+#sweep{
+  position:fixed;left:0;right:0;top:-20vh;height:16vh;pointer-events:none;z-index:1;
+  background:linear-gradient(180deg,transparent,rgba(98,217,232,.045),transparent);
+  animation:sweep 9s linear infinite;
+}
+@keyframes sweep{to{transform:translateY(150vh)}}
+#prog{
+  position:fixed;top:0;left:0;right:0;height:2px;background:var(--amber);
+  transform:scaleX(0);transform-origin:0 0;z-index:95;
+  box-shadow:0 0 8px var(--amber);
+}
+#tick{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;overflow:hidden;
+  background:rgba(6,10,18,.92);border-top:1px solid var(--line);padding:.4rem 0;
+}
+#tick .tin{
+  display:inline-flex;white-space:nowrap;
+  font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--dim);
+  animation:tick 45s linear infinite;
+}
+#tick span{padding:0 1.4rem}
+#tick b{color:var(--amber);font-weight:400}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+/* manual FX kill switch */
+html.nofx #spot,html.nofx #stars,html.nofx #sweep{display:none}
+html.nofx .led{animation:none}
+html.nofx .rv{opacity:1;transform:none;transition:none}
+html.nofx h1:hover .k{animation:none}
+html.nofx #term{transition:none}
+html.nofx #tick .tin{animation:none}
+html.nofx #cur::after{animation:none}
+
+/* ---------- content column ---------- */
+section{padding:4.5rem 0 1rem;scroll-margin-top:2rem}
+@media(min-width:840px){section:first-of-type{padding-top:5.5rem}}
+.sec-head{
+  display:flex;align-items:baseline;gap:1rem;margin-bottom:2.2rem;
+  border-bottom:1px solid var(--line);padding-bottom:.7rem;
+  position:sticky;top:0;z-index:5;
+  background:linear-gradient(var(--void) 82%,transparent);
+  padding-top:.8rem;
+}
+.sec-head .addr{font-family:var(--mono);font-size:12px;color:var(--amber);letter-spacing:.1em}
+.sec-head h2{
+  font-family:var(--disp);font-weight:600;font-size:clamp(1.1rem,2.4vw,1.35rem);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--bright);
+}
+.sec-head .tail{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--dim)}
+
+.rv{opacity:0;transform:translateY(14px);transition:opacity .5s ease,transform .5s ease}
+.rv.in{opacity:1;transform:none}
+
+/* ---------- about ---------- */
+#about p{max-width:38em;font-size:1rem}
+#about p+p{margin-top:1rem}
+#about .duo{
+  display:grid;grid-template-columns:1fr;gap:1rem;margin-top:2rem;
+}
+@media(min-width:640px){#about .duo{grid-template-columns:1fr 1fr}}
+.duo .half{border:1px solid var(--line);padding:1.1rem 1.25rem;background:var(--panel)}
+.duo .half h3{font-family:var(--mono);font-size:11.5px;font-weight:500;letter-spacing:.16em;margin-bottom:.5rem}
+.duo .half:first-child h3{color:var(--amber)}
+.duo .half:last-child h3{color:var(--cyan)}
+.duo .half p{font-size:.92rem;color:var(--text)}
+
+/* ---------- experience (chiang-style rows) ---------- */
+.jobs{display:flex;flex-direction:column}
+.job{
+  display:grid;grid-template-columns:1fr;gap:.3rem 1.5rem;
+  padding:1.25rem 1.25rem;margin:0 -1.25rem;
+  border:1px solid transparent;
+  transition:background .25s ease,border-color .25s ease,opacity .25s ease;
+}
+@media(min-width:700px){.job{grid-template-columns:140px 1fr}}
+.jobs:hover .job:not(:hover){opacity:.45}
+.job:hover{background:var(--panel);border-color:var(--line)}
+.job .when{font-family:var(--mono);font-size:11px;color:var(--dim);letter-spacing:.1em;padding-top:.25rem;white-space:nowrap}
+.job h3{font-family:var(--disp);font-weight:600;font-size:1.02rem;letter-spacing:.04em;color:var(--bright)}
+.job h3 .org{color:var(--cyan);font-weight:400}
+.job .meta{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.1em;margin-top:.1rem}
+.job p{margin-top:.45rem;font-size:.93rem;max-width:36em}
+.job .chips{margin-top:.7rem}
+
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chips span{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;
+  border:1px solid var(--line);color:var(--dim);padding:.15rem .55rem;
+}
+
+/* ---------- projects ---------- */
+.proj-grid{display:grid;grid-template-columns:1fr;gap:1.25rem}
+@media(min-width:700px){.proj-grid{grid-template-columns:1fr 1fr}}
+.panel{
+  position:relative;background:var(--panel);border:1px solid var(--line);
+  padding:1.5rem;
+}
+.panel::before,.panel::after,
+.panel .b::before,.panel .b::after{
+  content:"";position:absolute;width:14px;height:14px;border:2px solid var(--amber);
+  transition:border-color .25s ease;
+}
+.panel::before{top:-2px;left:-2px;border-right:0;border-bottom:0}
+.panel::after{top:-2px;right:-2px;border-left:0;border-bottom:0}
+.panel .b::before{bottom:-2px;left:-2px;border-right:0;border-top:0}
+.panel .b::after{bottom:-2px;right:-2px;border-left:0;border-top:0}
+.proj{display:flex;flex-direction:column;gap:.8rem;transition:transform .25s ease}
+.proj-grid:hover .proj:not(:hover){opacity:.55}
+.proj{transition:transform .25s ease,opacity .25s ease}
+.proj:hover{transform:translateY(-3px)}
+.proj:hover::before,.proj:hover::after,
+.proj:hover .b::before,.proj:hover .b::after{border-color:var(--cyan)}
+.proj .top{display:flex;align-items:baseline;gap:.75rem}
+.proj .mod{font-family:var(--mono);font-size:10.5px;color:var(--dim);letter-spacing:.1em}
+.proj h3{font-family:var(--disp);font-weight:600;font-size:1.05rem;letter-spacing:.05em;text-transform:uppercase;color:var(--bright)}
+.proj .star{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--amber);white-space:nowrap}
+.proj p{font-size:.92rem;color:var(--text);flex:1}
+.proj .go{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em}
+
+/* ---------- skills ---------- */
+.skills-grid{display:grid;grid-template-columns:1fr;gap:1.25rem}
+@media(min-width:700px){.skills-grid{grid-template-columns:1fr 1fr}}
+.skill-group h3{
+  font-family:var(--mono);font-size:12px;font-weight:500;color:var(--amber);
+  letter-spacing:.14em;margin-bottom:.9rem;
+}
+.skill-group h3 i{color:var(--dim);font-style:normal;margin-right:.6em}
+.skill-group .chips span{color:var(--text);border-color:#243146}
+
+/* ---------- homelab ---------- */
+.lab{display:grid;grid-template-columns:1fr;gap:2rem}
+@media(min-width:860px){.lab{grid-template-columns:1fr 1.1fr}}
+.lab p{max-width:36em;font-size:.98rem}
+.lab p+p{margin-top:1rem}
+.topo{
+  font-family:var(--mono);font-size:clamp(10px,1.5vw,12.5px);line-height:1.75;
+  color:var(--dim);white-space:pre;overflow-x:auto;
+}
+.topo b{color:var(--cyan);font-weight:400}
+.topo em{color:var(--amber);font-style:normal}
+
+/* ---------- contact / footer ---------- */
+#contact{padding-bottom:4rem}
+#contact .big{
+  font-family:var(--disp);font-weight:600;font-size:clamp(1.4rem,4vw,2rem);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--bright);margin-bottom:1rem;
+}
+#contact .big span{color:var(--amber)}
+#contact p{max-width:34em;margin-bottom:1.8rem}
+.btn{
+  display:inline-block;font-family:var(--mono);font-size:12px;letter-spacing:.12em;
+  padding:.7rem 1.4rem;border:1px solid var(--amber);color:var(--amber);
+  transition:background .2s,color .2s;
+}
+.btn:hover{background:var(--amber);color:var(--void)}
+.colophon{
+  margin-top:4rem;font-family:var(--mono);font-size:11px;color:var(--dim);
+  letter-spacing:.06em;max-width:40em;line-height:1.9;
+}
+.colophon .eot{display:block;margin-top:1.2rem;letter-spacing:.3em}
+
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .rv{opacity:1;transform:none;transition:none}
+  .proj,.proj:hover{transform:none}
+  .led{animation:none}
+  #sweep,#stars,#cur,#curdot{display:none!important}
+  #tick .tin{animation:none}
+  h1:hover .k{animation:none}
+}
+</style>
+</head>
+<body>
+
+<!-- boot sequence overlay -->
+<div id="boot" role="presentation">
+  <span class="ln">RK-BIOS v2.6 — KASHYAP EMBEDDED SYSTEMS</span>
+  <span class="ln">CPU ..................... <span class="ok">OK</span></span>
+  <span class="ln">MEMORY MAP .............. <span class="ok">LOADED</span></span>
+  <span class="ln">MOUNT /experience ....... <span class="ok">4 ENTRIES</span></span>
+  <span class="ln">MOUNT /projects ......... <span class="ok">8 MODULES</span></span>
+  <span class="ln">UPLINK guwahati-in ...... <span class="ok">26.14°N 91.73°E</span></span>
+  <span class="ln">BOOT COMPLETE — LAUNCHING INTERFACE_</span>
+  <span class="skip">[ click to skip ]</span>
+</div>
+
+<div id="spot" aria-hidden="true"></div>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div id="sweep" aria-hidden="true"></div>
+<div id="prog" aria-hidden="true"></div>
+
+<div class="wrap">
+
+<!-- ============ left column ============ -->
+<aside>
+  <p class="sys-tag"><span class="led" aria-hidden="true"></span>RK://SYSTEM — <span id="sysst">ONLINE</span></p>
+  <h1><span id="hn1">Ricky</span><br><span class="k" id="hn2">Kashyap</span></h1>
+  <p class="role">DEVOPS ENGINEER WORKING @ <b>VRIXAALABS</b></p>
+  <p class="edu">B.TECH CS · GAUHATI UNIVERSITY · 2023–2027</p>
+  <p class="tagline">I solder microcontrollers into doing things they probably
+  shouldn't — then deploy the dashboards for them on my own homelab.</p>
+
+  <nav class="map" aria-label="Memory map">
+    <a href="#about"><span class="bar" aria-hidden="true"></span><b>0x00</b><span>ABOUT</span></a>
+    <a href="#work"><span class="bar" aria-hidden="true"></span><b>0x01</b><span>WORK LOG</span></a>
+    <a href="#projects"><span class="bar" aria-hidden="true"></span><b>0x02</b><span>PROJECTS</span></a>
+    <a href="#systems"><span class="bar" aria-hidden="true"></span><b>0x03</b><span>SUBSYSTEMS</span></a>
+    <a href="#lab"><span class="bar" aria-hidden="true"></span><b>0x04</b><span>THE LAB</span></a>
+    <a href="#contact"><span class="bar" aria-hidden="true"></span><b>0x05</b><span>CONTACT</span></a>
+  </nav>
+
+  <div class="aside-foot">
+    <div class="socials">
+      <a href="https://github.com/priencelucifer" target="_blank" rel="noopener">GITHUB ↗</a>
+      <a href="https://www.linkedin.com/in/ricky-kashyap-7b776723a/" target="_blank" rel="noopener">LINKEDIN ↗</a>
+      <a href="mailto:rickykashyapbng4@gmail.com">EMAIL ↗</a>
+    </div>
+    <p class="clockline">GUWAHATI, IN · 26.14°N 91.73°E · <b id="ltime">—</b></p>
+    <div class="ctrl">
+      <button id="fxbtn" type="button">FX: ON</button>
+      <button id="phbtn" type="button">PHOSPHOR: AMBER</button>
+      <button id="termbtn" type="button">CONSOLE [~]</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ============ right column ============ -->
+<main>
+
+<section id="about">
+  <div class="sec-head rv"><span class="addr">0x00</span><h2>About</h2><span class="tail">operator profile</span></div>
+  <div class="rv">
+    <p>I'm a computer science student at Gauhati University and a DevOps engineer
+    at VrixaaLabs, working where hardware meets infrastructure. My projects start
+    at the workbench — a microcontroller, a soldering iron, a bad idea — and end
+    up deployed, monitored, and version-controlled.</p>
+    <p>Right now I'm building CI/CD pipelines at work, leading hackathons on the
+    side, and running a small datacenter's worth of self-hosted services out of
+    my room in Guwahati.</p>
+  </div>
+  <div class="stats rv">
+    <div><span class="n" id="st-repos">8</span><span class="l">PUBLIC REPOS</span></div>
+    <div><span class="n">8</span><span class="l">PROJECT MODULES</span></div>
+    <div><span class="n">3</span><span class="l">INTERNSHIPS</span></div>
+    <div><span class="n" id="st-push">2026</span><span class="l">LAST PUSH</span></div>
+  </div>
+  <div class="duo">
+    <div class="half rv">
+      <h3>// SOLDER SIDE</h3>
+      <p>Firmware in C and C++ on ESP32 and RP2040 — BLE keyboards, HID devices,
+      field sensors, security keys. Bare metal, no OS, every byte accounted for.</p>
+    </div>
+    <div class="half rv">
+      <h3>// DEPLOY SIDE</h3>
+      <p>Docker, Proxmox, pfSense, Cloudflare, Grafana. The dashboards those
+      devices report to — self-hosted, tunneled, and redeployed on every git push.</p>
+    </div>
+  </div>
+</section>
+
+<section id="work">
+  <div class="sec-head rv"><span class="addr">0x01</span><h2>Work Log</h2><span class="tail">newest first</span></div>
+  <div class="jobs">
+    <div class="job rv">
+      <span class="when">JUN 2026 — NOW</span>
+      <div>
+        <h3>DevOps Engineer · <span class="org">VrixaaLabs Pvt Ltd</span></h3>
+        <div class="meta">INTERNSHIP · REMOTE</div>
+        <p>Infrastructure, containerized deployments, and CI/CD pipelines —
+        Docker, GitHub Actions, and Linux in production.</p>
+        <div class="chips"><span>DOCKER</span><span>GITHUB ACTIONS</span><span>LINUX</span><span>CI/CD</span></div>
+      </div>
+    </div>
+    <div class="job rv">
+      <span class="when">MAR 2026</span>
+      <div>
+        <h3>Hackathon Lead · <span class="org">CYPHER Hackdays</span></h3>
+        <div class="meta">LEADERSHIP · GUWAHATI</div>
+        <p>Led the CYPHER hackathon — the event, the problem statements, and the
+        teams behind it.</p>
+      </div>
+    </div>
+    <div class="job rv">
+      <span class="when">JAN — FEB 2026</span>
+      <div>
+        <h3>Project Intern · <span class="org">Innect Technologies Pvt. Ltd.</span></h3>
+        <div class="meta">INTERNSHIP · ASSAM · HYBRID</div>
+      </div>
+    </div>
+    <div class="job rv">
+      <span class="when">JUN 2025</span>
+      <div>
+        <h3>Intern · <span class="org">Airports Authority of India</span></h3>
+        <div class="meta">INTERNSHIP · GUWAHATI AIRPORT · ON-SITE</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="sec-head rv"><span class="addr">0x02</span><h2>Projects</h2><span class="tail">8 modules mounted</span></div>
+  <div class="proj-grid">
+
+    <article class="proj panel rv"><span class="b"></span>
+      <div class="top"><span class="mod">MOD-01 · FLAGSHIP</span><span class="star">FIELD-DEPLOYED</span></div>
+      <h3>RoadSense</h3>
+      <p>Crowd-sourced road-hazard intelligence for Indian cities. ESP32 nodes on
+      vehicles and a Kotlin Android app report potholes and speed breakers into a
+      live Mapbox heatmap, processed at the edge on Cloudflare.</p>
+      <div class="chips"><span>ESP32</span><span>KOTLIN</span><span>MAPBOX GL</span><span>CLOUDFLARE D1</span><span>EDGE FUNCTIONS</span></div>
+      <a class="go" href="https://github.com/priencelucifer/Roadsense" target="_blank" rel="noopener">OPEN MODULE ↗</a>
+    </article>
+
+    <article class="proj panel rv"><span class="b"></span>
+      <div class="top"><span class="mod">MOD-02 · HARDWARE</span><span class="star" data-star="esp32_corne_ble_keyboard">★ 4</span></div>
+      <h3>Corne BLE Keyboard</h3>
+      <p>Handwired wireless split mechanical keyboard from scratch — ESP32 BLE HID
+      firmware with deep-sleep power management, 18650 battery with TP4056
+      charging, and a 3D-printed case. No PCB.</p>
+      <div class="chips"><span>C++</span><span>ESP32</span><span>BLE HID</span><span>PLATFORMIO</span><span>3D PRINT</span></div>
+      <a class="go" href="https://github.com/priencelucifer/esp32_corne_ble_keyboard" target="_blank" rel="noopener">OPEN MODULE ↗</a>
+    </article>
+
+    <article class="proj panel rv"><span class="b"></span>
+      <div class="top"><span class="mod">MOD-03 · HARDWARE</span><span class="star" data-star="Pi-Pico-Web-Based-HID-Controller"></span></div>
+      <h3>Pico Web HID</h3>
+      <p>Turns a Raspberry Pi Pico into a browser-controlled keyboard, mouse, and
+      macro device over local Wi-Fi — remote input for any machine from any
+      device on the network, no software installs.</p>
+      <div class="chips"><span>CIRCUITPYTHON</span><span>RP2040</span><span>USB HID</span><span>WI-FI</span></div>
+      <a class="go" href="https://github.com/priencelucifer/Pi-Pico-Web-Based-HID-Controller" target="_blank" rel="noopener">OPEN MODULE ↗</a>
+    </article>
+
+    <article class="proj panel rv"><span class="b"></span>
+      <div class="top"><span class="mod">MOD-04 · IOT</span><span class="star" data-star="Low-cost-IoT-sensors">★ 1</span></div>
+      <h3>Agri IoT Sensors</h3>
+      <p>Sub-₹2000 sensor node measuring environmental and soil data for
+      agriculture — low-cost field telemetry built to make precision farming
+      accessible.</p>
+      <div class="chips"><span>C++</span><span>ESP32</span><span>SOIL / NPK</span><span>LOW-COST</span></div>
+      <a class="go" href="https://github.com/priencelucifer/Low-cost-IoT-sensors" target="_blank" rel="noopener">OPEN MODULE ↗</a>
+    </article>
+
+    <article class="proj panel rv"><span class="b"></span>
+      <div class="top"><span class="mod">MOD-05 · SECURITY</span></div>
+      <h3>Pico Zero Security Key</h3>
+      <p>Hardware security key built on the Raspberry Pi Pico — transforming a
+      $4 microcontroller into a CCID smart-card device via pico-keys-sdk.</p>
+      <div class="chips"><span>C</span><span>RP2040</span><span>CCID</span><span>SECURITY</span></div>
+      <a class="go" href="https://github.com/priencelucifer/pico-keys-sdk" target="_blank" rel="noopener">OPEN MODULE ↗</a>
+    </article>
+
+    <article class="proj panel rv"><span class="b"></span>
+      <div class="top"><span class="mod">MOD-06 · WEB</span></div>
+      <h3>NotesHub</h3>
+      <p>Peer-to-peer note-sharing platform that puts privacy first — notes move
+      between peers, not through someone else's server.</p>
+      <div class="chips"><span>TYPESCRIPT</span><span>P2P</span><span>PRIVACY</span></div>
+      <a class="go" href="https://github.com/priencelucifer" target="_blank" rel="noopener">OPEN MODULE ↗</a>
+    </article>
+
+    <article class="proj panel rv"><span class="b"></span>
+      <div class="top"><span class="mod">MOD-07 · CLIENT</span><span class="star">PRIVATE · LIVE</span></div>
+      <h3>Guwahati Water Dept</h3>
+      <p>Private internal platform deployed for the Guwahati water department —
+      the team uses it as a pin board and internal messaging tool. Handled
+      deployment, hosting, and access setup.</p>
+      <div class="chips"><span>INTERNAL TOOL</span><span>PIN BOARD</span><span>MESSAGING</span><span>DEPLOYMENT</span></div>
+    </article>
+
+    <article class="proj panel rv"><span class="b"></span>
+      <div class="top"><span class="mod">MOD-08 · CLIENT</span><span class="star">LIVE</span></div>
+      <h3>Creativlok</h3>
+      <p>E-commerce storefront taken to production end to end — hosting
+      provisioning, domain and DNS configuration, SSL certificates, production
+      build and go-live, plus post-launch updates for a live store.</p>
+      <div class="chips"><span>E-COMMERCE</span><span>HOSTING</span><span>DNS / SSL</span><span>PRODUCTION</span></div>
+    </article>
+
+  </div>
+</section>
+
+<section id="systems">
+  <div class="sec-head rv"><span class="addr">0x03</span><h2>Subsystems</h2><span class="tail">all nominal</span></div>
+  <div class="skills-grid">
+    <div class="skill-group rv">
+      <h3><i>SYS-A</i>FIRMWARE / HARDWARE</h3>
+      <div class="chips"><span>C</span><span>C++</span><span>ESP32</span><span>RASPBERRY PI PICO</span><span>ARDUINO</span><span>PLATFORMIO</span><span>BLE</span><span>USB HID</span></div>
+    </div>
+    <div class="skill-group rv">
+      <h3><i>SYS-B</i>LANGUAGES</h3>
+      <div class="chips"><span>PYTHON</span><span>TYPESCRIPT</span><span>JAVASCRIPT</span><span>BASH</span><span>HTML5</span><span>NODE.JS</span></div>
+    </div>
+    <div class="skill-group rv">
+      <h3><i>SYS-C</i>NETWORKING / INFRA</h3>
+      <div class="chips"><span>CLOUDFLARE</span><span>NGINX</span><span>WIREGUARD</span><span>TAILSCALE</span><span>PFSENSE</span><span>PI-HOLE</span></div>
+    </div>
+    <div class="skill-group rv">
+      <h3><i>SYS-D</i>DEVOPS / DEPLOYMENT</h3>
+      <div class="chips"><span>DOCKER</span><span>PROXMOX</span><span>GITHUB ACTIONS</span><span>PORTAINER</span><span>GRAFANA</span><span>LINUX</span><span>GIT</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="lab">
+  <div class="sec-head rv"><span class="addr">0x04</span><h2>The Lab</h2><span class="tail">self-hosted · always on</span></div>
+  <div class="lab">
+    <div class="rv">
+      <p>Everything I build gets deployed on infrastructure I run myself.
+      A Proxmox hypervisor behind a pfSense gateway with segmented VLANs,
+      Cloudflare Tunnel for ingress, Docker for workloads, and Grafana
+      watching all of it.</p>
+      <p>Push to git, and the lab redeploys itself — the same pipeline
+      discipline as production, at homelab scale.</p>
+    </div>
+    <div class="panel rv"><span class="b"></span>
+      <div class="topo" aria-label="Homelab network topology">
+<em>[ INTERNET ]</em>
+     │
+     ▼
+<b>┌─ pfSense gateway</b> ── vlans · firewall
+<b>│</b>
+<b>├─ Proxmox hypervisor</b>
+<b>│   ├─</b> docker ── portainer · workloads
+<b>│   ├─</b> pi-hole ── dns sinkhole
+<b>│   └─</b> grafana ── telemetry
+<b>│</b>
+<b>└─ Cloudflare Tunnel</b> ── public ingress
+     │
+     ▼
+<em>[ auto-deploy on git push ]</em></div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="sec-head rv"><span class="addr">0x05</span><h2>Contact</h2><span class="tail">channel open</span></div>
+  <div class="rv">
+    <p class="big">Open <span>Channel</span></p>
+    <p>I'm open to internships, freelance hardware or infrastructure work, and
+    interesting problems that involve a soldering iron, a terminal, or both.
+    My inbox is the fastest uplink.</p>
+    <a class="btn" href="mailto:rickykashyapbng4@gmail.com">TRANSMIT → rickykashyapbng4@gmail.com</a>
+    <div class="socials" style="margin-top:1.6rem">
+      <a href="https://github.com/priencelucifer" target="_blank" rel="noopener">GITHUB ↗</a>
+      <a href="https://www.linkedin.com/in/ricky-kashyap-7b776723a/" target="_blank" rel="noopener">LINKEDIN ↗</a>
+      <a href="resume-ricky-kashyap.pdf" download>DOWNLOAD CV ↓</a>
+    </div>
+  </div>
+  <p class="colophon rv">Hand-coded in a single HTML file — no framework, no build
+  step, no dependencies. Typeset in Chakra Petch, Space Grotesk, and IBM Plex Mono.
+  Designed to boot anywhere. Built by
+  <a href="https://www.linkedin.com/in/ricky-kashyap-7b776723a/" target="_blank" rel="noopener">Ricky Kashyap</a> · © 2026
+  <span class="eot">— END OF TRANSMISSION —</span></p>
+</section>
+
+</main>
+</div>
+
+<!-- bottom status ticker -->
+<div id="tick" aria-hidden="true">
+  <div class="tin">
+    <span>ALL SYSTEMS <b>NOMINAL</b></span><span>ESP32 · RP2040 · DOCKER · PROXMOX</span><span>26.14°N 91.73°E <b>GUWAHATI IN</b></span><span>OPEN TO <b>INTERNSHIPS & FREELANCE</b></span><span>PRESS <b>~</b> FOR CONSOLE</span><span>8 PUBLIC REPOS · SELF-HOSTED · ALWAYS ON</span>
+    <span>ALL SYSTEMS <b>NOMINAL</b></span><span>ESP32 · RP2040 · DOCKER · PROXMOX</span><span>26.14°N 91.73°E <b>GUWAHATI IN</b></span><span>OPEN TO <b>INTERNSHIPS & FREELANCE</b></span><span>PRESS <b>~</b> FOR CONSOLE</span><span>8 PUBLIC REPOS · SELF-HOSTED · ALWAYS ON</span>
+  </div>
+</div>
+
+<!-- drop-down system console -->
+<div id="term" role="dialog" aria-label="System console" aria-hidden="true">
+  <div class="out" id="tout">RK://SYSTEM console — type 'help' for commands.</div>
+  <div class="in">
+    <label for="tin">guest@rk-system:~$</label>
+    <input id="tin" autocomplete="off" spellcheck="false" autocapitalize="off">
+  </div>
+</div>
+
+<script>
+// boot sequence — types lines, skippable, honors reduced motion
+(function(){
+  var boot=document.getElementById('boot');
+  var lines=boot.querySelectorAll('.ln');
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var i=0,t;
+  function finish(){clearTimeout(t);boot.classList.add('done');setTimeout(function(){boot.remove()},500);if(window.__hero)window.__hero()}
+  function next(){
+    if(i>=lines.length){t=setTimeout(finish,400);return}
+    lines[i++].classList.add('on');
+    t=setTimeout(next,140+Math.random()*160);
+  }
+  if(reduce||localStorage.getItem('fx')==='off'){boot.remove()}else{boot.addEventListener('click',finish);next()}
+})();
+
+// cursor spotlight (desktop pointers only)
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  if(!matchMedia('(pointer: fine)').matches)return;
+  var s=document.getElementById('spot');
+  document.addEventListener('mousemove',function(e){
+    s.style.setProperty('--mx',e.clientX+'px');
+    s.style.setProperty('--my',e.clientY+'px');
+  },{passive:true});
+})();
+
+// local time
+(function(){
+  var lt=document.getElementById('ltime');
+  function tick(){
+    lt.textContent=new Date().toLocaleTimeString('en-IN',{timeZone:'Asia/Kolkata',hour12:false})+' IST';
+  }
+  tick();setInterval(tick,1000);
+})();
+
+// scroll reveal — staggered, with decrypt effect on section headers
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){
+    document.querySelectorAll('.rv').forEach(function(el){el.classList.add('in')});return;
+  }
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting)return;
+      e.target.classList.add('in');io.unobserve(e.target);
+      if(e.target.classList.contains('sec-head')&&!document.documentElement.classList.contains('nofx')){
+        scramble(e.target.querySelector('h2'),550);
+      }
+    })
+  },{threshold:.12});
+  document.querySelectorAll('.rv').forEach(function(el,i){
+    el.style.transitionDelay=((i%5)*70)+'ms';
+    io.observe(el);
+  });
+})();
+
+// scroll-spy — highlight active section in the memory map
+(function(){
+  var links=document.querySelectorAll('nav.map a');
+  if(!links.length)return;
+  var map={};
+  links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a});
+  var spy=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){
+        links.forEach(function(a){a.classList.remove('on')});
+        map[e.target.id].classList.add('on');
+      }
+    })
+  },{rootMargin:'-40% 0px -55% 0px'});
+  document.querySelectorAll('main section').forEach(function(s){spy.observe(s)});
+})();
+
+// fx + phosphor settings, persisted (Cassie Evans / Keita Yamada)
+(function(){
+  var root=document.documentElement;
+  var fxbtn=document.getElementById('fxbtn'),phbtn=document.getElementById('phbtn');
+  var fx=localStorage.getItem('fx')!=='off';
+  var ph=localStorage.getItem('phosphor')||'neon';
+  function apply(){
+    root.classList.toggle('nofx',!fx);
+    root.classList.toggle('cur-on',fx&&matchMedia('(pointer: fine)').matches&&!matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if(ph==='amber'){root.removeAttribute('data-phosphor')}else{root.setAttribute('data-phosphor',ph)}
+    fxbtn.textContent='FX: '+(fx?'ON':'OFF');
+    phbtn.textContent='PHOSPHOR: '+ph.toUpperCase();
+  }
+  apply();
+  fxbtn.addEventListener('click',function(){fx=!fx;localStorage.setItem('fx',fx?'on':'off');apply()});
+  var order=['neon','amber','green','ice'];
+  phbtn.addEventListener('click',function(){ph=order[(order.indexOf(ph)+1)%order.length];localStorage.setItem('phosphor',ph);apply()});
+})();
+
+// live GitHub data (Robb Owen / Jhey Tompkins) — silent fallback to static values
+(function(){
+  fetch('https://api.github.com/users/priencelucifer/repos?per_page=100')
+  .then(function(r){return r.ok?r.json():Promise.reject()})
+  .then(function(repos){
+    document.getElementById('st-repos').textContent=repos.length;
+    var latest=repos.map(function(r){return r.pushed_at}).sort().pop();
+    if(latest)document.getElementById('st-push').textContent=
+      new Date(latest).toLocaleDateString('en-GB',{month:'short',year:'numeric'}).toUpperCase();
+    repos.forEach(function(r){
+      var el=document.querySelector('[data-star="'+r.name+'"]');
+      if(el&&r.stargazers_count>0)el.textContent='★ '+r.stargazers_count;
+    });
+  }).catch(function(){});
+})();
+
+// viewport status easter egg (Lynn Fisher)
+(function(){
+  var st=document.getElementById('sysst');
+  function set(){st.textContent=innerWidth<480?'COMPACT MODE':innerWidth>1600?'WIDEBAND':'ONLINE'}
+  set();addEventListener('resize',set);
+})();
+
+// hidden system console (Bruno Simon / Josh Comeau)
+(function(){
+  var term=document.getElementById('term'),out=document.getElementById('tout'),inp=document.getElementById('tin');
+  var btn=document.getElementById('termbtn');
+  var t0=Date.now();
+  function esc(s){return s.replace(/</g,'&lt;')}
+  var cmds={
+    help:function(){return "commands: whoami · projects · work · lab · uptime · phosphor · contact · reboot · clear · exit"},
+    whoami:function(){return "ricky kashyap — embedded systems & devops\nguwahati, in · b.tech cs @ gauhati university ('27)\ndevops engineer @ vrixaalabs"},
+    projects:function(){return [].map.call(document.querySelectorAll('.proj h3'),function(h){return '· '+h.textContent}).join('\n')},
+    work:function(){return [].map.call(document.querySelectorAll('.job h3'),function(h){return '· '+h.textContent}).join('\n')},
+    lab:function(){return "proxmox · pfsense · docker · pi-hole · grafana · cloudflare tunnel\nauto-deploys on git push."},
+    uptime:function(){var s=Math.floor((Date.now()-t0)/1000);return 'session uptime: '+Math.floor(s/60)+'m '+(s%60)+'s'},
+    contact:function(){return "email: rickykashyapbng4@gmail.com\ngithub: github.com/priencelucifer\nlinkedin: linkedin.com/in/ricky-kashyap-7b776723a"},
+    phosphor:function(){document.getElementById('phbtn').click();return 'phosphor → '+(document.documentElement.getAttribute('data-phosphor')||'amber')},
+    sudo:function(){return 'permission denied: nice try.'},
+    reboot:function(){setTimeout(function(){location.reload()},400);return 'rebooting…'},
+    clear:function(){out.textContent='';return ''},
+    exit:function(){toggle(false);return ''}
+  };
+  function toggle(open){
+    term.classList.toggle('open',open);
+    term.setAttribute('aria-hidden',String(!open));
+    if(open)inp.focus();
+  }
+  btn.addEventListener('click',function(){toggle(!term.classList.contains('open'))});
+  document.addEventListener('keydown',function(e){
+    if((e.key==='`'||e.key==='~')&&document.activeElement!==inp){e.preventDefault();toggle(!term.classList.contains('open'))}
+    if(e.key==='Escape')toggle(false);
+  });
+  inp.addEventListener('keydown',function(e){
+    if(e.key!=='Enter')return;
+    var v=inp.value.trim().toLowerCase();inp.value='';
+    if(!v)return;
+    var res=cmds[v]?cmds[v]():'unknown command: '+v+' — try help';
+    out.innerHTML+='\n<span class="c">guest@rk-system:~$ '+esc(v)+'</span>\n'+(res?esc(res)+'\n':'');
+    out.scrollTop=out.scrollHeight;
+  });
+})();
+
+// text decrypt effect (shared)
+function scramble(el,dur){
+  if(!el)return;
+  var target=el.dataset.txt||el.textContent;el.dataset.txt=target;
+  var chars='!<>-_\\/[]{}=+*^?#01';
+  var start=performance.now();
+  (function frame(t){
+    var p=Math.min(1,(t-start)/dur),out='';
+    for(var i=0;i<target.length;i++){
+      out+=i<p*target.length?target[i]:chars[Math.random()*chars.length|0];
+    }
+    el.textContent=out;
+    if(p<1)requestAnimationFrame(frame);
+  })(start);
+}
+
+// hero name decrypt after boot
+window.__hero=function(){
+  scramble(document.getElementById('hn1'),650);
+  setTimeout(function(){scramble(document.getElementById('hn2'),750)},180);
+};
+
+// custom targeting-reticle cursor
+(function(){
+  if(!matchMedia('(pointer: fine)').matches)return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var ring=document.createElement('div');ring.id='cur';
+  var dot=document.createElement('div');dot.id='curdot';
+  document.body.appendChild(ring);document.body.appendChild(dot);
+  var x=innerWidth/2,y=innerHeight/2,rx=x,ry=y,s=1,ts=1;
+  addEventListener('mousemove',function(e){
+    x=e.clientX;y=e.clientY;
+    dot.style.transform='translate('+x+'px,'+y+'px)';
+  },{passive:true});
+  document.addEventListener('mouseover',function(e){
+    ts=e.target.closest('a,button,input,.proj')?1.7:1;
+  });
+  (function loop(){
+    rx+=(x-rx)*.16;ry+=(y-ry)*.16;s+=(ts-s)*.18;
+    ring.style.transform='translate('+rx+'px,'+ry+'px) scale('+s+')';
+    requestAnimationFrame(loop);
+  })();
+})();
+
+// particle starfield with constellation lines
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var cv=document.getElementById('stars'),ctx=cv.getContext('2d');
+  var W,H,P=[],N=70,f=0,col='#ffb000';
+  function size(){W=cv.width=innerWidth;H=cv.height=innerHeight}
+  size();addEventListener('resize',size);
+  for(var i=0;i<N;i++)P.push({
+    x:Math.random()*innerWidth,y:Math.random()*innerHeight,
+    vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,
+    r:Math.random()*1.3+.4
+  });
+  function accent(){
+    var c=getComputedStyle(document.documentElement).getPropertyValue('--amber').trim();
+    return c||'#ffb000';
+  }
+  col=accent();
+  (function loop(){
+    requestAnimationFrame(loop);
+    if(document.hidden)return;
+    if(document.documentElement.classList.contains('nofx'))return;
+    if(++f%150===0)col=accent();
+    ctx.clearRect(0,0,W,H);
+    var i,j,a,b,d;
+    for(i=0;i<N;i++){
+      a=P[i];a.x+=a.vx;a.y+=a.vy;
+      if(a.x<0)a.x=W;if(a.x>W)a.x=0;if(a.y<0)a.y=H;if(a.y>H)a.y=0;
+      ctx.globalAlpha=.5;ctx.fillStyle='#7d95b5';
+      ctx.fillRect(a.x,a.y,a.r,a.r);
+    }
+    ctx.strokeStyle=col;ctx.lineWidth=.5;
+    for(i=0;i<N;i++)for(j=i+1;j<N;j++){
+      a=P[i];b=P[j];d=(a.x-b.x)*(a.x-b.x)+(a.y-b.y)*(a.y-b.y);
+      if(d<12100){
+        ctx.globalAlpha=(1-d/12100)*.13;
+        ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
+      }
+    }
+    ctx.globalAlpha=1;
+  })();
+})();
+
+// 3D tilt on project cards
+(function(){
+  if(!matchMedia('(pointer: fine)').matches)return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  document.querySelectorAll('.proj').forEach(function(c){
+    c.addEventListener('mousemove',function(e){
+      if(document.documentElement.classList.contains('nofx'))return;
+      var r=c.getBoundingClientRect();
+      var px=(e.clientX-r.left)/r.width-.5,py=(e.clientY-r.top)/r.height-.5;
+      c.style.transform='perspective(700px) rotateX('+(-py*5)+'deg) rotateY('+(px*5)+'deg) translateY(-3px)';
+    });
+    c.addEventListener('mouseleave',function(){c.style.transform=''});
+  });
+})();
+
+// scroll progress bar
+(function(){
+  var prog=document.getElementById('prog');
+  function set(){
+    var m=document.documentElement.scrollHeight-innerHeight;
+    prog.style.transform='scaleX('+(m>0?scrollY/m:0)+')';
+  }
+  set();addEventListener('scroll',set,{passive:true});addEventListener('resize',set);
+})();
+
+// count-up stats when revealed
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  var stats=document.querySelector('.stats');
+  if(!stats)return;
+  var done=false;
+  var io=new IntersectionObserver(function(es){
+    if(done||!es[0].isIntersecting)return;
+    done=true;io.disconnect();
+    stats.querySelectorAll('.n').forEach(function(el){
+      if(el.id==='st-push')return;
+      var n=parseInt(el.textContent,10);
+      if(!n)return;
+      var s=performance.now();
+      (function f(t){
+        var p=Math.min(1,(t-s)/900);
+        el.textContent=Math.round(n*(p*(2-p)));
+        if(p<1)requestAnimationFrame(f);else el.textContent=n;
+      })(s);
+    });
+  },{threshold:.4});
+  io.observe(stats);
+})();
+</script>
+</body>
+</html>
