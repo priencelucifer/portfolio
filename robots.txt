@@ -37,4 +37,4 @@ Allow: /
 User-agent: meta-externalagent
 Allow: /
 
-Sitemap: https://rickykashyap.pages.dev/sitemap.xml
+Sitemap: https://rickykashyap.top/sitemap.xml

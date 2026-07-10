@@ -15,7 +15,7 @@ ingress) that auto-deploys on git push.
 - GitHub: https://github.com/priencelucifer
 - LinkedIn: https://www.linkedin.com/in/ricky-kashyap-7b776723a/
 - Email: rickykashyapbng4@gmail.com
-- CV: https://rickykashyap.pages.dev/resume-ricky-kashyap.pdf
+- CV: https://rickykashyap.top/resume-ricky-kashyap.pdf
 
 ## Experience
 
