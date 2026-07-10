@@ -1,0 +1,59 @@
+# Ricky Kashyap
+
+> DevOps engineer and embedded systems developer from Guwahati, Assam, India.
+> B.Tech Computer Science, Gauhati University (2023–2027).
+> Currently DevOps Engineer (Intern) at VrixaaLabs Pvt Ltd.
+
+## Who
+
+Ricky Kashyap works where hardware meets infrastructure: firmware for ESP32 and
+RP2040 microcontrollers on one side, production web deployment and self-hosted
+infrastructure on the other. He runs a homelab (Proxmox hypervisor, pfSense
+gateway with VLANs, Docker workloads, Grafana monitoring, Cloudflare Tunnel
+ingress) that auto-deploys on git push.
+
+- GitHub: https://github.com/priencelucifer
+- LinkedIn: https://www.linkedin.com/in/ricky-kashyap-7b776723a/
+- Email: rickykashyapbng4@gmail.com
+- CV: https://rickykashyap.pages.dev/resume-ricky-kashyap.pdf
+
+## Experience
+
+- DevOps Engineer (Intern), VrixaaLabs Pvt Ltd — remote, Jun 2026–present.
+  Docker, GitHub Actions, Linux, CI/CD pipelines in production.
+- Hackathon Lead, CYPHER Hackdays — Guwahati, Mar 2026. Led the event,
+  problem statements, and organizing teams.
+- Project Intern, Innect Technologies Pvt. Ltd. — Assam, Jan–Feb 2026.
+- Intern, Airports Authority of India — Guwahati airport, Jun 2025.
+
+## Projects
+
+- RoadSense — crowd-sourced road-hazard mapping for Indian cities. ESP32
+  vehicle nodes + Kotlin Android app report potholes to a live Mapbox heatmap
+  on Cloudflare Pages/Functions/D1. https://github.com/priencelucifer/Roadsense
+- Guwahati Water Department — deployed a private internal platform (pin board
+  and messaging tool) for the department; hosting and access setup.
+- Creativlok — end-to-end production deployment of a live e-commerce
+  storefront: hosting, DNS, SSL, go-live, post-launch updates.
+- Corne BLE Keyboard — handwired wireless split mechanical keyboard; ESP32
+  BLE HID firmware in C++, deep-sleep power management, 3D-printed case.
+  https://github.com/priencelucifer/esp32_corne_ble_keyboard
+- Pico Web HID Controller — Raspberry Pi Pico as a browser-controlled
+  keyboard/mouse/macro device over Wi-Fi (CircuitPython).
+  https://github.com/priencelucifer/Pi-Pico-Web-Based-HID-Controller
+- Low-cost Agri IoT Sensors — environmental/soil sensor node under Rs. 2000
+  (C++/ESP32). https://github.com/priencelucifer/Low-cost-IoT-sensors
+- Pico Zero Security Key — hardware security key on the Pi Pico (CCID via
+  pico-keys-sdk). https://github.com/priencelucifer/pico-keys-sdk
+- NotesHub — peer-to-peer, privacy-first note-sharing platform.
+
+## Skills
+
+C, C++, Python, TypeScript, JavaScript, Bash; ESP32, Raspberry Pi Pico
+(RP2040), Arduino, PlatformIO, BLE, USB HID; Docker, Proxmox, GitHub Actions,
+Portainer, Grafana, Linux, NGINX; Cloudflare, WireGuard, Tailscale, pfSense,
+Pi-hole.
+
+## Availability
+
+Open to internships and freelance hardware or infrastructure work.
