@@ -1,0 +1,18 @@
+# Cloudflare Pages headers.
+# Keep the *.pages.dev copies out of search results, so only
+# https://rickykashyap.top/ gets indexed (no duplicate content).
+https://:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.:project.pages.dev/*
+  X-Robots-Tag: noindex
+
+# Icons and the social image rarely change; let browsers cache them.
+/favicon.ico
+  Cache-Control: public, max-age=604800
+/icon-*.png
+  Cache-Control: public, max-age=604800
+/apple-touch-icon.png
+  Cache-Control: public, max-age=604800
+/og-image.png
+  Cache-Control: public, max-age=86400

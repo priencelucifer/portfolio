@@ -42,10 +42,12 @@ ingress) that auto-deploys on git push.
   keyboard/mouse/macro device over Wi-Fi (CircuitPython).
   https://github.com/priencelucifer/Pi-Pico-Web-Based-HID-Controller
 - Low-cost Agri IoT Sensors — environmental/soil sensor node under Rs. 2000
-  (C++/ESP32). https://github.com/priencelucifer/Low-cost-IoT-sensors
+  (C++/ESP32).
+  https://github.com/priencelucifer/Low-cost-IoT-sensors-for-agriculture-and-environmental-monitoring.
 - Pico Zero Security Key — hardware security key on the Pi Pico (CCID via
   pico-keys-sdk). https://github.com/priencelucifer/pico-keys-sdk
-- NotesHub — peer-to-peer, privacy-first note-sharing platform.
+- NotesHub — peer-to-peer, privacy-first, account-free platform for sharing
+  campus notes and past papers. https://github.com/priencelucifer/noteshub-public
 
 ## Skills
 

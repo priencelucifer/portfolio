@@ -1,0 +1,14 @@
+{
+  "name": "Ricky Kashyap — DevOps & Embedded Systems Engineer",
+  "short_name": "Ricky Kashyap",
+  "description": "Portfolio of Ricky Kashyap, DevOps engineer and embedded systems developer in Guwahati, India.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "background_color": "#fafaf9",
+  "theme_color": "#18181b",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
