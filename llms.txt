@@ -28,6 +28,18 @@ ingress) that auto-deploys on git push.
 
 ## Projects
 
+- Handplot — turns typed text into real-looking handwriting G-code for 3D
+  printers with a pen holder (Bambu Lab, Prusa, Creality, Voron and 400+
+  more). A neural network trained on real pen strokes runs entirely in the
+  browser; works offline, no install. Live at https://handplot.org
+  https://github.com/priencelucifer/handwrite
+- SongSync — Android app that plays the same song on several phones in sync
+  to within a few milliseconds (shared timeline, NTP-style clock sync). A
+  native Kotlin rewrite of the Flutter SongSync: Jetpack Compose, Media3,
+  Nearby Connections. https://github.com/priencelucifer/SongSync-Kotlin
+- TimeTable — time tracking for learning, fitness, and work; React web client
+  and native Android client (Kotlin, Jetpack Compose).
+  https://github.com/priencelucifer/timeTable-public
 - RoadSense — crowd-sourced road-hazard mapping for Indian cities. ESP32
   vehicle nodes + Kotlin Android app report potholes to a live Mapbox heatmap
   on Cloudflare Pages/Functions/D1. https://github.com/priencelucifer/Roadsense
@@ -51,7 +63,8 @@ ingress) that auto-deploys on git push.
 
 ## Skills
 
-C, C++, Python, TypeScript, JavaScript, Bash; ESP32, Raspberry Pi Pico
+C, C++, Python, Kotlin, TypeScript, JavaScript, Bash; Android (Jetpack
+Compose), React; ESP32, Raspberry Pi Pico
 (RP2040), Arduino, PlatformIO, BLE, USB HID; Docker, Proxmox, GitHub Actions,
 Portainer, Grafana, Linux, NGINX; Cloudflare, WireGuard, Tailscale, pfSense,
 Pi-hole.
